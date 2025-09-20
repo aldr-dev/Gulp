@@ -1,10 +1,13 @@
-const gulp = require("gulp");
-const rename = require("gulp-rename");
-const sass = require("gulp-sass")(require("sass"));
-const postcss = require("gulp-postcss");
-const cssnano = require("cssnano");
-const autoprefixer = require("gulp-autoprefixer").default;
-const sourcemaps = require("gulp-sourcemaps");
+import gulp from "gulp";
+import rename from "gulp-rename";
+import dartSass from "sass";
+import gulpSass from "gulp-sass";
+const sass = gulpSass(dartSass);
+import postcss from "gulp-postcss";
+import cssnano from "cssnano";
+import autoprefixer from "gulp-autoprefixer";
+import sourcemaps from "gulp-sourcemaps";
+import imagemin, {gifsicle, mozjpeg, optipng, svgo} from 'gulp-imagemin';
 
 function buildCss() {
     return gulp
@@ -21,13 +24,34 @@ function buildCss() {
         .pipe(gulp.dest("./css/"));
 }
 
-function print(cb) {
-    console.log('print gulp');
-    cb();
+function optimizeImages() {
+    return gulp
+        .src("./images/**/*.{jpg,jpeg,png,gif,svg}", { encoding: false })
+        .pipe(imagemin([
+            gifsicle({interlaced: true}),
+            mozjpeg({quality: 90, progressive: true}),
+            optipng({optimizationLevel: 5}),
+            svgo({
+                plugins: [
+                    {
+                        name: 'removeViewBox',
+                        active: true
+                    },
+                    {
+                        name: 'cleanupIDs',
+                        active: false
+                    }
+                ]
+            })
+        ]))
+        .pipe(gulp.dest("./images"));
 }
 
-function watchSass() {
+
+
+function watch() {
     gulp.watch("./scss/**/*.scss", buildCss);
+    gulp.watch("./images/**/*.{jpg,jpeg,png,gif,svg}", optimizeImages);
 }
 
-gulp.task("default", gulp.series(print, watchSass));
+gulp.task("default", gulp.series(watch));
