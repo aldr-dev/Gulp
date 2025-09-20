@@ -6,9 +6,9 @@ const cssnano = require("cssnano");
 const autoprefixer = require("gulp-autoprefixer").default;
 const sourcemaps = require("gulp-sourcemaps");
 
-function buildScssFromCss() {
+function buildCss() {
     return gulp
-        .src("./scss/style.scss")
+        .src("./scss/**/*.scss")
         .pipe(sourcemaps.init())
         .pipe(sass().on("error", sass.logError))
         .pipe(postcss([cssnano()]))
@@ -21,4 +21,13 @@ function buildScssFromCss() {
         .pipe(gulp.dest("./css/"));
 }
 
-exports.buildScssFromCss = buildScssFromCss;
+function print(cb) {
+    console.log('print gulp');
+    cb();
+}
+
+function watchSass() {
+    gulp.watch("./scss/**/*.scss", buildCss);
+}
+
+gulp.task("default", gulp.series(print, watchSass));
