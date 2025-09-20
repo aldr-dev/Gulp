@@ -4,10 +4,12 @@ const sass = require("gulp-sass")(require("sass"));
 const postcss = require("gulp-postcss");
 const cssnano = require("cssnano");
 const autoprefixer = require("gulp-autoprefixer").default;
+const sourcemaps = require("gulp-sourcemaps");
 
 function buildScssFromCss() {
     return gulp
         .src("./scss/style.scss")
+        .pipe(sourcemaps.init())
         .pipe(sass().on("error", sass.logError))
         .pipe(postcss([cssnano()]))
         .pipe(autoprefixer({
@@ -15,6 +17,7 @@ function buildScssFromCss() {
             overrideBrowserslist: ["last 2 versions", "> 1%", "ie 11"]
         }))
         .pipe(rename({ suffix: ".min" }))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest("./css/"));
 }
 
